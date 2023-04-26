@@ -156,6 +156,7 @@ export class UniswapV3Deployer {
     deployParams: Array<any>,
     actor: Signer
   ) {
+    console.log(deployParams);
     const factory = new ContractFactory(abi, bytecode, actor);
     const deployment = await factory.deploy(...deployParams);
     return deployment.deployed();
