@@ -17,31 +17,48 @@ const artifacts: { [name: string]: ContractJson } = {
 // type IUniswapV3Factory = Contract;
 
 export class UniswapV3Deployer {
-  static async deploy(actor: Signer): Promise<{ [name: string]: Contract }> {
+  public static async deploy(
+    actor: Signer
+  ): Promise<{ [name: string]: Contract }> {
     const deployer = new UniswapV3Deployer(actor);
 
-    const weth9 = await deployer.deployWETH9();
-    const factory = await deployer.deployFactory();
-    const router = await deployer.deployRouter(factory.address, weth9.address);
-    const nftDescriptorLibrary = await deployer.deployNFTDescriptorLibrary();
-    const positionDescriptor = await deployer.deployPositionDescriptor(
-      nftDescriptorLibrary.address,
-      weth9.address
-    );
-    const positionManager = await deployer.deployNonfungiblePositionManager(
-      factory.address,
-      weth9.address,
-      positionDescriptor.address
-    );
+    try {
+      console.log("starting deploy");
+      const weth9 = await deployer.deployWETH9();
+      console.log("deployed weth9");
+      const factory = await deployer.deployFactory();
+      console.log("deployed factory");
+      const router = await deployer.deployRouter(
+        factory.address,
+        weth9.address
+      );
+      console.log("deployed router");
+      const nftDescriptorLibrary = await deployer.deployNFTDescriptorLibrary();
+      console.log("deployed nftDescriptorLibrary");
+      const positionDescriptor = await deployer.deployPositionDescriptor(
+        nftDescriptorLibrary.address,
+        weth9.address
+      );
+      console.log("deployed positionDescriptor");
+      const positionManager = await deployer.deployNonfungiblePositionManager(
+        factory.address,
+        weth9.address,
+        positionDescriptor.address
+      );
+      console.log("deployed positionManager");
 
-    return {
-      weth9,
-      factory,
-      router,
-      nftDescriptorLibrary,
-      positionDescriptor,
-      positionManager,
-    };
+      return {
+        weth9,
+        factory,
+        router,
+        nftDescriptorLibrary,
+        positionDescriptor,
+        positionManager,
+      };
+    } catch (e) {
+      console.error(e);
+      return Promise.resolve({});
+    }
   }
 
   deployer: Signer;
@@ -51,7 +68,7 @@ export class UniswapV3Deployer {
   }
 
   async deployFactory() {
-    return await this.deployContract<Contract>(
+    return this.deployContract<Contract>(
       artifacts.UniswapV3Factory.abi,
       artifacts.UniswapV3Factory.bytecode,
       [],
@@ -60,7 +77,7 @@ export class UniswapV3Deployer {
   }
 
   async deployWETH9() {
-    return await this.deployContract<Contract>(
+    return this.deployContract<Contract>(
       artifacts.WETH9.abi,
       artifacts.WETH9.bytecode,
       [],
@@ -69,7 +86,7 @@ export class UniswapV3Deployer {
   }
 
   async deployRouter(factoryAddress: string, weth9Address: string) {
-    return await this.deployContract<Contract>(
+    return this.deployContract<Contract>(
       artifacts.SwapRouter.abi,
       artifacts.SwapRouter.bytecode,
       [factoryAddress, weth9Address],
@@ -78,7 +95,7 @@ export class UniswapV3Deployer {
   }
 
   async deployNFTDescriptorLibrary() {
-    return await this.deployContract<Contract>(
+    return this.deployContract<Contract>(
       artifacts.NFTDescriptor.abi,
       artifacts.NFTDescriptor.bytecode,
       [],
@@ -125,7 +142,7 @@ export class UniswapV3Deployer {
     weth9Address: string,
     positionDescriptorAddress: string
   ) {
-    return await this.deployContract<Contract>(
+    return this.deployContract<Contract>(
       artifacts.NonfungiblePositionManager.abi,
       artifacts.NonfungiblePositionManager.bytecode,
       [factoryAddress, weth9Address, positionDescriptorAddress],
@@ -140,6 +157,7 @@ export class UniswapV3Deployer {
     actor: Signer
   ) {
     const factory = new ContractFactory(abi, bytecode, actor);
-    return await factory.deploy(...deployParams);
+    const deployment = await factory.deploy(...deployParams);
+    return deployment.deployed();
   }
 }

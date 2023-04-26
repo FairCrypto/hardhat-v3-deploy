@@ -1,8 +1,8 @@
 {
-  "name": "@uniswap/hardhat-v3-deploy",
-  "version": "0.1.2",
+  "name": "@faircrypto/hardhat-v3-deploy",
+  "version": "0.1.6",
   "description": "Hardhat plugin for Uniswap V3 deployment",
-  "repository": "github:Uniswap/hardhat-v3-deploy",
+  "repository": "git@github.com:FairCrypto/hardhat-v3-deploy",
   "author": "Omar Bohsali",
   "license": "MIT",
   "main": "dist/index.js",
